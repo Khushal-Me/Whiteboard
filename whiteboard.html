@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiteboard</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+        }
+        canvas {
+            display: block;
+            background: white;
+            border: 2px solid #444;
+            margin: 20px auto;
+            cursor: crosshair;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .controls button, .controls input {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, transform 0.2s;
+        }
+        .controls button:hover, .controls input:hover {
+            transform: scale(1.05);
+        }
+        .controls button {
+            background: #555;
+            color: white;
+        }
+        .controls button:hover {
+            background: #777;
+        }
+        .controls input {
+            background: #444;
+            border: 1px solid #666;
+            color: white;
+        }
+        .controls input::-webkit-color-swatch {
+            border: 1px solid #666;
+        }
+        .controls input::-webkit-color-swatch-wrapper {
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="clearCanvas()">Clear</button>
+        <button id="toggleTool" onclick="toggleEraser()">✏️</button>
+        <button onclick="document.getElementById('colorPicker').click()">Pen Color</button>
+        <input type="color" id="colorPicker" onchange="changeColor(this.value)" title="Choose color" style="display: none;" />
+    </div>
+    <canvas id="whiteboard"></canvas>
+
+    <script>
+        const canvas = document.getElementById('whiteboard');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth - 40;
+        canvas.height = window.innerHeight - 100;
+
+        let drawing = false;
+        let eraserMode = false;
+        let penColor = 'black';
+
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent scrolling when space is pressed
+                clearCanvas();
+            }
+        });
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.lineWidth = eraserMode ? 20 : 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = eraserMode ? 'white' : penColor;
+
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function toggleEraser() {
+            eraserMode = !eraserMode;
+            const toggleButton = document.getElementById('toggleTool');
+            toggleButton.textContent = eraserMode ? '🧽' : '✏️';
+        }
+
+        function changeColor(color) {
+            penColor = color;
+            eraserMode = false;
+            document.getElementById('toggleTool').textContent = '✏️';
+        }
+    </script>
+</body>
+</html>
