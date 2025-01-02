@@ -17,7 +17,7 @@ A lightweight, browser-based whiteboard application built with vanilla JavaScrip
 git clone https://github.com/Khushal-Me/Whiteboard.git
 ```
 
-2. Open `whiteboard.html` in your preferred web browser
+2. Open `index.html` in your preferred web browser
 
 No additional dependencies or setup required!
 
