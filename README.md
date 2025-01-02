@@ -4,7 +4,7 @@ A lightweight, browser-based whiteboard application built with vanilla JavaScrip
 
 ## 🌟 Features
 
-- Smooth drawing experience with customizable pen colors
+- Smooth drawing experience with customizable pen colors and sizes
 - Eraser tool with one-click toggle
 - Clear canvas functionality (click button or press spacebar)
 - Modern dark mode UI with hover effects
