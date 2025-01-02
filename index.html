@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smooth Whiteboard</title>
     <style>
+        /* Basic styles for the body */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background-color: #1a1a1a;
         }
+        /* Styles for the canvas element */
         canvas {
             display: block;
             background: white;
@@ -18,6 +20,7 @@
             cursor: crosshair;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
+        /* Styles for the control buttons and inputs */
         .controls {
             display: flex;
             justify-content: center;
@@ -55,6 +58,7 @@
         .controls input::-webkit-color-swatch-wrapper {
             padding: 2px;
         }
+        /* Styles for the brush size display */
         .size-display {
             width: 40px;
             height: 40px;
@@ -74,22 +78,30 @@
 </head>
 <body>
     <div class="controls">
+        <!-- Clear button -->
         <button onclick="clearCanvas()">Clear</button>
+        <!-- Toggle between pen and eraser -->
         <button id="toggleTool" onclick="toggleEraser()">✏️</button>
+        <!-- Pen color picker -->
         <button onclick="document.getElementById('colorPicker').click()">Pen Color</button>
+        <!-- Decrease brush size -->
         <button onclick="adjustBrushSize(-1)">-</button>
+        <!-- Display current brush size -->
         <div class="size-display">
             <div id="sizeDot" class="size-dot"></div>
         </div>
+        <!-- Increase brush size -->
         <button onclick="adjustBrushSize(1)">+</button>
+        <!-- Hidden color picker input -->
         <input type="color" id="colorPicker" onchange="changeColor(this.value)" title="Choose color" style="display: none;" />
     </div>
+    <!-- Canvas for drawing -->
     <canvas id="whiteboard"></canvas>
     <script>
         const canvas = document.getElementById('whiteboard');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth - 40;
-        canvas.height = window.innerHeight - 100;
+        canvas.width = document.documentElement.clientWidth - 40;
+        canvas.height = document.documentElement.clientHeight - 100;
         
         let drawing = false;
         let eraserMode = false;
@@ -103,6 +115,7 @@
         // Initialize dot size
         updateSizeDot();
         
+        // Adjust brush size and update the size dot
         function adjustBrushSize(change) {
             const newSize = brushSize + change;
             if (newSize >= MIN_BRUSH_SIZE && newSize <= MAX_BRUSH_SIZE) {
@@ -111,6 +124,7 @@
             }
         }
         
+        // Update the size dot to reflect the current brush size
         function updateSizeDot() {
             const dot = document.getElementById('sizeDot');
             const size = Math.min(30, brushSize * 2); // Scale the visual size for better UI
@@ -119,10 +133,11 @@
             dot.style.background = penColor;
         }
         
+        // Draw on the canvas
         function draw(e) {
             if (!drawing) return;
             
-            ctx.lineWidth = eraserMode ? brushSize * 10 : brushSize;
+            ctx.lineWidth = eraserMode ? Math.min(brushSize * 10, MAX_BRUSH_SIZE) : brushSize;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = eraserMode ? 'white' : penColor;
@@ -135,15 +150,20 @@
             [lastX, lastY] = [e.offsetX, e.offsetY];
         }
         
+        // Start drawing when the mouse is pressed
         canvas.addEventListener('mousedown', (e) => {
             drawing = true;
             [lastX, lastY] = [e.offsetX, e.offsetY];
         });
         
+        // Draw as the mouse moves
         canvas.addEventListener('mousemove', draw);
+        // Stop drawing when the mouse is released
         canvas.addEventListener('mouseup', () => drawing = false);
+        // Stop drawing when the mouse leaves the canvas
         canvas.addEventListener('mouseout', () => drawing = false);
         
+        // Clear the canvas when the spacebar is pressed
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 e.preventDefault();
@@ -151,10 +171,12 @@
             }
         });
         
+        // Clear the canvas
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
         
+        // Toggle between pen and eraser
         function toggleEraser() {
             eraserMode = !eraserMode;
             const toggleButton = document.getElementById('toggleTool');
@@ -163,6 +185,7 @@
             dot.style.background = eraserMode ? 'white' : penColor;
         }
         
+        // Change the pen color
         function changeColor(color) {
             penColor = color;
             eraserMode = false;
