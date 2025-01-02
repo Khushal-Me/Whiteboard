@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whiteboard</title>
+    <title>Smooth Whiteboard</title>
     <style>
         body {
             margin: 0;
@@ -64,50 +64,60 @@
         <input type="color" id="colorPicker" onchange="changeColor(this.value)" title="Choose color" style="display: none;" />
     </div>
     <canvas id="whiteboard"></canvas>
-
     <script>
         const canvas = document.getElementById('whiteboard');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth - 40;
         canvas.height = window.innerHeight - 100;
-
+        
         let drawing = false;
         let eraserMode = false;
         let penColor = 'black';
-
-        canvas.addEventListener('mousedown', () => drawing = true);
-        canvas.addEventListener('mouseup', () => drawing = false);
+        let lastX = 0;
+        let lastY = 0;
+        
+        function draw(e) {
+            if (!drawing) return;
+            
+            ctx.lineWidth = eraserMode ? 20 : 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = eraserMode ? 'white' : penColor;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+        
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        });
+        
         canvas.addEventListener('mousemove', draw);
-
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mouseout', () => drawing = false);
+        
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
-                e.preventDefault(); // Prevent scrolling when space is pressed
+                e.preventDefault();
                 clearCanvas();
             }
         });
-
-        function draw(e) {
-            if (!drawing) return;
-            ctx.lineWidth = eraserMode ? 20 : 5;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = eraserMode ? 'white' : penColor;
-
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        }
-
+        
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }
-
+        
         function toggleEraser() {
             eraserMode = !eraserMode;
             const toggleButton = document.getElementById('toggleTool');
             toggleButton.textContent = eraserMode ? '🧽' : '✏️';
         }
-
+        
         function changeColor(color) {
             penColor = color;
             eraserMode = false;
