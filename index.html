@@ -21,6 +21,7 @@
         .controls {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             margin-top: 10px;
         }
@@ -54,6 +55,21 @@
         .controls input::-webkit-color-swatch-wrapper {
             padding: 2px;
         }
+        .size-display {
+            width: 40px;
+            height: 40px;
+            background: #555;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+        }
+        .size-dot {
+            background: white;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 <body>
@@ -61,6 +77,11 @@
         <button onclick="clearCanvas()">Clear</button>
         <button id="toggleTool" onclick="toggleEraser()">✏️</button>
         <button onclick="document.getElementById('colorPicker').click()">Pen Color</button>
+        <button onclick="adjustBrushSize(-1)">-</button>
+        <div class="size-display">
+            <div id="sizeDot" class="size-dot"></div>
+        </div>
+        <button onclick="adjustBrushSize(1)">+</button>
         <input type="color" id="colorPicker" onchange="changeColor(this.value)" title="Choose color" style="display: none;" />
     </div>
     <canvas id="whiteboard"></canvas>
@@ -75,11 +96,33 @@
         let penColor = 'black';
         let lastX = 0;
         let lastY = 0;
+        let brushSize = 2;
+        const MAX_BRUSH_SIZE = 30;
+        const MIN_BRUSH_SIZE = 1;
+        
+        // Initialize dot size
+        updateSizeDot();
+        
+        function adjustBrushSize(change) {
+            const newSize = brushSize + change;
+            if (newSize >= MIN_BRUSH_SIZE && newSize <= MAX_BRUSH_SIZE) {
+                brushSize = newSize;
+                updateSizeDot();
+            }
+        }
+        
+        function updateSizeDot() {
+            const dot = document.getElementById('sizeDot');
+            const size = Math.min(30, brushSize * 2); // Scale the visual size for better UI
+            dot.style.width = size + 'px';
+            dot.style.height = size + 'px';
+            dot.style.background = penColor;
+        }
         
         function draw(e) {
             if (!drawing) return;
             
-            ctx.lineWidth = eraserMode ? 20 : 2;
+            ctx.lineWidth = eraserMode ? brushSize * 10 : brushSize;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
             ctx.strokeStyle = eraserMode ? 'white' : penColor;
@@ -116,12 +159,15 @@
             eraserMode = !eraserMode;
             const toggleButton = document.getElementById('toggleTool');
             toggleButton.textContent = eraserMode ? '🧽' : '✏️';
+            const dot = document.getElementById('sizeDot');
+            dot.style.background = eraserMode ? 'white' : penColor;
         }
         
         function changeColor(color) {
             penColor = color;
             eraserMode = false;
             document.getElementById('toggleTool').textContent = '✏️';
+            updateSizeDot();
         }
     </script>
 </body>
